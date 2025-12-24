@@ -1,7 +1,5 @@
 # `HtmlBasic` - BASIC-to-HTML Transpiler Tailored for Web Development
 
-_**Note:** This project is just my sudden inspiration, though I don't want to let such a good idea go to waste. So far I have managed to make some progress about preparing for Postgraduate Entrance Exam, but my anxious feeling tells me that I ought to stick to it until the end of this year, so I simply upload this project and set the project aside for the time being. **The actual content of the project is subject to change in the future, but now it's enough to refill my dopamine - the next thing I will do is memorize all the key points for the exam like there's no tomorrow.**_
-
 ## Description
 `HtmlBasic` is a transpiler that converts BASIC code into HTML, focusing on web development. Inspired by @DualBrain's [JsBasic](https://github.com/DualBrain/JsBasic) project, it is designed to be easy to create HTML webpages with embedded JavaScript. The transpiler is written in VB.NET and uses the Irony library for parsing BASIC code, but from my perspective, the BASIC language itself needs to be overhauled to support web development. *__The overhauled version of the language is still based on GW-BASIC, and will be renamed HTML-BASIC.__*
 
@@ -9,8 +7,16 @@ HTML-BASIC is designed to lower the barrier for two key groups: **beginner devel
 
 While JavaScript is a great language for web development, and BASIC shines for its beginner-friendliness on personal computers, HTML-BASIC merges these strengths using BASIC's intuitive syntax. The expected workflow is intentionally straightforward: write HTML-BASIC code in a `.bas` file, run the transpiler to generate a self-contained HTML file (with embedded transpiled JavaScript), and open the HTML file directly in any modern web browser. No additional build tools or dependencies required.
 
-## Why Is the Project Suspended
-There are less than two months for my preparation for Postgraduate Entrance Exam, so the programming logic of the `JsBasic` project remains unchanged. The only thing I do for the time being is re-organize the namespaces of the codebase, upload this project, and preserve such a good idea on GitHub until I complete the exam - *__any extra hours spent coding would take away from my exam preparation, and Politics, together with TCM-related subjects, has been a tough nut to crack for me when preparing for the exam.__* By the way, the exam also includes English, but I don't have to worry about my English vocabulary.
+## Current Status of the Project
+The core programming logic of the original `JsBasic` project has remained unmodified, since my focus was fully dedicated to the Postgraduate Entrance Exam until its recent completion.  
+
+A key design adjustment is now being finalized for keyword usage, aiming to align the language with modern programming conventions while avoiding the introduction of new keywords. Specifically:  
+- The `RETURN` keyword, which in traditional GW-BASIC was exclusively paired with `GOSUB` for subroutine returns, will be repurposed to handle return values for functions defined via `DEF FN` or subroutines via `DEF SUB`.  
+- To maintain consistency with this new usage of `RETURN` and uphold modern coding practices:  
+  1. The `GOSUB` keyword is prohibited within the body of any `DEF FN`/`DEF SUB` block;  
+  2. The `GOTO` keyword must not be used to jump from inside a function/subroutine body to external code, nor shall global-level `GOTO` statements incorrectly branch into the scope of a function/subroutine.  
+
+This adjustment preserves backward compatibility with core BASIC syntax while refining control flow semantics to match contemporary programming expectations, eliminating the need for additional keywords and reducing syntactic ambiguity.
 
 ## Differentiation from `JsBasic`
 While inspired by JsBasic, a BASIC-to-JavaScript transpiler, HTML-BASIC might stand out in three core ways:
@@ -103,7 +109,7 @@ Structs and enums are two important features in BASIC that are not supported in 
 40 DEF FN Vi2d.dist!(vec1, vec2)  ' Static methods are defined using `FN` keyword
 50 LET sqr_diff_x = (vec1.x - vec2.x) ^ 2
 60 LET sqr_diff_y = (vec1.y - vec2.y) ^ 2
-70 RESULT= SQRT(sqr_diff_x + sqr_diff_y)  ' Use `RESULT=` to return a value
+70 RETURN SQRT(sqr_diff_x + sqr_diff_y)  ' Use `RETURN` to return a value
 80 END DEF
 90 SET p1 = NEW Vi2d(3, 5) : p1.name = "Alice"
 100 PRINT p1.x, p1.y, p1.name  ' Output: 3 5 Alice
@@ -149,12 +155,12 @@ HTML-BASIC provides a new way to define functions and subroutines, either single
 - The `ME` keyword is used to refer to the current instance of a struct.
 - Single-line function: `DEF FN name(...params) = expression`
 - Single-line subroutine: `DEF SUB name(...params) = action`
-- The `RESULT=` keyword is used to return a value from a function, and `PASS` to exit a subroutine. For example, `IF x > 10 THEN PASS` transpiled in JavaScript is `if (x > 10) return;`
-- `GOTO`, `GOSUB` and `RETURN` is still supported, but you can neither jump from the global code directly into the function bodies, nor jump out of the functions/subroutines when using these keywords inside them.
+- `GOTO`, `GOSUB` and `RETURN` is still supported, but `GOSUB` is forbidden in `DEF FN` or `DEF SUB` bodies, and `GOTO` cannot jump from inside a function/subroutine to external code, nor can global `GOTO` branch into a function/subroutine scope.  
+- Now the `RETURN` keyword can be also used to either return a value from a function or exit a subroutine. For example, `IF x > 10 THEN RETURN` transpiled in JavaScript is `if (x > 10) return;`
 
 ``` basic
 10 DEF STRUCT Vf2d(x!, y!)  ' A struct for 2D floating-point vector
-20 DEF ENUM Elements(WOOD, FIRE, EARTH, METAL, WATER)
+20 DEF ENUM Elements{WOOD, FIRE, EARTH, METAL, WATER}
 30 DEF M_FN Vf2d.add(x!, y!) = NEW Vf2d(ME.x + x, ME.y + y)
 40 DEF M_SUB Vf2d.move(x!, y!)
 50 ME.x = ME.x + x
@@ -164,12 +170,12 @@ HTML-BASIC provides a new way to define functions and subroutines, either single
 90 SET p2 = p1.add(2.5, 3.5)
 100 PRINT "p2 = ", p2  ' The `to_string` method is called automatically
 110 DEF FN element_name$(element%)
-120 IF element = Elements.WOOD THEN RESULT= "wood"
-130 IF element = Elements.FIRE THEN RESULT= "fire"
-140 IF element = Elements.EARTH THEN RESULT= "earth"
-150 IF element = Elements.METAL THEN RESULT= "metal"
-160 IF element = Elements.WATER THEN RESULT= "water"
-170 RESULT= "unknown"
+120 IF element = Elements.WOOD THEN RETURN "wood"
+130 IF element = Elements.FIRE THEN RETURN "fire"
+140 IF element = Elements.EARTH THEN RETURN "earth"
+150 IF element = Elements.METAL THEN RETURN "metal"
+160 IF element = Elements.WATER THEN RETURN "water"
+170 RETURN "unknown"
 180 END DEF
 190 PRINT element_name(Elements.WATER)
 ```

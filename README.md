@@ -109,7 +109,7 @@ Structs and enums are two important features in BASIC that are not supported in 
 40 DEF FN Vi2d.dist!(vec1, vec2)  ' Static methods are defined using `FN` keyword
 50 LET sqr_diff_x = (vec1.x - vec2.x) ^ 2
 60 LET sqr_diff_y = (vec1.y - vec2.y) ^ 2
-70 RETURN SQRT(sqr_diff_x + sqr_diff_y)  ' Use `RETURN` to return a value
+70 RETURN SQRT(sqr_diff_x + sqr_diff_y)
 80 END DEF
 90 SET p1 = NEW Vi2d(3, 5) : p1.name = "Alice"
 100 PRINT p1.x, p1.y, p1.name  ' Output: 3 5 Alice
@@ -157,6 +157,7 @@ HTML-BASIC provides a new way to define functions and subroutines, either single
 - Single-line subroutine: `DEF SUB name(...params) = action`
 - `GOTO`, `GOSUB` and `RETURN` is still supported, but `GOSUB` is forbidden in `DEF FN` or `DEF SUB` bodies, and `GOTO` cannot jump from inside a function/subroutine to external code, nor can global `GOTO` branch into a function/subroutine scope.  
 - Now the `RETURN` keyword can be also used to either return a value from a function or exit a subroutine. For example, `IF x > 10 THEN RETURN` transpiled in JavaScript is `if (x > 10) return;`
+
 
 ``` basic
 10 DEF STRUCT Vf2d(x!, y!)  ' A struct for 2D floating-point vector

@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Exe</OutputType> 
+    <!-- NOTE: Change output type to Library when this should be used as a library -->
     <RootNamespace>HtmlBasic</RootNamespace>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>

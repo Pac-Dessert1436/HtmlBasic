@@ -8,7 +8,7 @@ HTML-BASIC is designed to lower the barrier for two key groups: **beginner devel
 While JavaScript is a great language for web development, and BASIC shines for its beginner-friendliness on personal computers, HTML-BASIC merges these strengths using BASIC's intuitive syntax. The expected workflow is intentionally straightforward: write HTML-BASIC code in a `.bas` file, run the transpiler to generate a self-contained HTML file (with embedded transpiled JavaScript), and open the HTML file directly in any modern web browser. No additional build tools or dependencies required.
 
 ## Current Status of the Project
-The core programming logic of the original `JsBasic` project has remained unmodified, since my focus was fully dedicated to the Postgraduate Entrance Exam until its recent completion.  
+**HTML-BASIC is currently in the alpha stage of development, with new features actively being implemented. However, the codebase has unresolved issues that prevent the transpiler from being fully operational. It is anticipated that resolving these challenges and stabilizing the codebase will take approximately one month or more.**
 
 A key design adjustment is now being finalized for keyword usage, aiming to align the language with modern programming conventions while avoiding the introduction of new keywords. Specifically:  
 - The `RETURN` keyword, which in traditional GW-BASIC was exclusively paired with `GOSUB` for subroutine returns, will be repurposed to handle return values for functions defined via `DEF FN` or subroutines via `DEF SUB`.  

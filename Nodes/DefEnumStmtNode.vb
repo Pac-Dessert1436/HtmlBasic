@@ -30,12 +30,9 @@ Namespace Nodes
         Dim idx As Integer = 0
         For Each v As Irony.Compiler.AstNode In ValueList.ChildNodes
           If idx > 0 Then textWriter.Write(", ")
-          If v.FindToken() IsNot Nothing Then
-            textWriter.Write(v.FindToken().Text & ": " & idx.ToString())
-          Else
-            GeneratorHelper.GenerateNode(context, textWriter, v)
-            textWriter.Write(":" & idx.ToString())
-          End If
+          ' Generate enum value name using GeneratorHelper
+          GeneratorHelper.GenerateNode(context, textWriter, v)
+          textWriter.Write(": " & idx.ToString())
           idx += 1
         Next
       End If

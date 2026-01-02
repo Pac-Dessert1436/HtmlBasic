@@ -5,34 +5,29 @@ Imports Irony.Compiler
 ''' This class defines the Grammar for the BASIC language.
 ''' </summary>
 Public Class BasicGrammar
-  Inherits Grammar
+    Inherits Grammar
 
-  Public Sub New()
+    Public Sub New()
 
 #Region "Init"
 
-    ' BASIC is not case sensitive... 
-    CaseSensitive = False
+        ' BASIC is not case sensitive... 
+        CaseSensitive = False
 
-    ' By default, new-line characters are ignored. Because
-    ' BASIC uses line breaks to delimit lines, we need to
-    ' know where the line breaks are.  The following line
-    ' is required for this.
-    TokenFilters.Add(New CodeOutlineFilter(False))
+        ' By default, new-line characters are ignored. Because
+        ' BASIC uses line breaks to delimit lines, we need to
+        ' know where the line breaks are.  The following line
+        ' is required for this.
+        TokenFilters.Add(New CodeOutlineFilter(False))
 
-    ' Define the Terminals
-    Dim number = New NumberLiteral("NUMBER")
-    Dim variable = New VariableIdentifierTerminal
-    Dim stringLiteral = New StringLiteral("STRING",
-                                          """",
-                                          ScanFlags.None)
+        ' Define the Terminals
+        Dim number = New NumberLiteral("NUMBER")
+        Dim variable = New VariableIdentifierTerminal
+    Dim stringLiteral = New StringLiteral("STRING", String.Empty)
     'Important: do not add comment term to
     'base.NonGrammarTerminals list - we do
-    'use this terminal in grammar rules
-    Dim comment = New CommentTerminal("Comment",
-                                      "REM",
-                                      vbLf)
-
+    'our own comment handling in CodeOutlineFilter
+    Dim comment = New CommentTerminal("COMMENT", "'", vbLf)
     Dim comma = Symbol(",", "comma")
 
     ' Make sure reserved keywords of the BASIC language
@@ -70,6 +65,15 @@ Public Class BasicGrammar
     Dim COMMENT_STMT = New NonTerminal("COMMENT_STMT", GetType(RemStmtNode))
     Dim GLOBAL_VAR_EXPR = New NonTerminal("GLOBAL_VAR_EXPR", GetType(GenericJsBasicNode))
 
+    ' New syntax for functions, structs, and enums
+    Dim DEF_FN_STMT = New NonTerminal("DEF_FN_STMT", GetType(DefFnStmtNode))
+    Dim DEF_SUB_STMT = New NonTerminal("DEF_SUB_STMT", GetType(DefFnStmtNode))
+    Dim DEF_STRUCT_STMT = New NonTerminal("DEF_STRUCT_STMT", GetType(DefStructStmtNode))
+    Dim DEF_ENUM_STMT = New NonTerminal("DEF_ENUM_STMT", GetType(DefEnumStmtNode))
+    Dim FN_BODY = New NonTerminal("FN_BODY", GetType(StatementListNode))
+    Dim ENUM_VALUES = New NonTerminal("ENUM_VALUES", GetType(GenericJsBasicNode))
+    Dim STRUCT_MEMBERS = New NonTerminal("STRUCT_MEMBERS", GetType(GenericJsBasicNode))
+
     ' Set the PROGRAM to be the root node of BASIC programs.
     ' A program is a bunch of lines
     Root = PROGRAM
@@ -79,9 +83,7 @@ Public Class BasicGrammar
 #Region "Grammar declaration"
 
     ' A program is a collection of lines
-    PROGRAM.Rule = MakePlusRule(PROGRAM,
-                                Nothing,
-                                LINE)
+    PROGRAM.Rule = MakePlusRule(PROGRAM, Nothing, LINE)
 
     ' A line can be an empty line, or it's a number
     ' followed by a statement list ended by a new-line.
@@ -92,9 +94,7 @@ Public Class BasicGrammar
 
     ' A statement list is 1 or more statements separated
     ' by the ':' character
-    STATEMENT_LIST.Rule = MakePlusRule(STATEMENT_LIST,
-                                       Symbol(":"),
-                                       STATEMENT)
+    STATEMENT_LIST.Rule = MakePlusRule(STATEMENT_LIST, Symbol(":"), STATEMENT)
 
     ' A statement can be one of a number of types
     STATEMENT.Rule = EXPR Or
@@ -110,21 +110,22 @@ Public Class BasicGrammar
                      LOCATE_STMT Or
                      SWAP_STMT Or
                      WHILE_STMT Or
-                     WEND_STMT
+                     WEND_STMT Or
+                     DEF_FN_STMT Or
+                     DEF_SUB_STMT Or
+                     DEF_STRUCT_STMT Or
+                     DEF_ENUM_STMT
+
     ' The different statements are defined here
     PRINT_STMT.Rule = "print" + EXPR_LIST
     INPUT_STMT.Rule = "input" + EXPR_LIST + variable
     IF_STMT.Rule = "if" + EXPR + "then" + STATEMENT_LIST + ELSE_CLAUSE_OPT
-    ELSE_CLAUSE_OPT.Rule = Empty Or
-                           "else" + STATEMENT_LIST
-    BRANCH_STMT.Rule = "goto" + number Or
-                       "gosub" + number Or
-                       "return"
+    ELSE_CLAUSE_OPT.Rule = Empty Or "else" + STATEMENT_LIST
+    BRANCH_STMT.Rule = "goto" + number Or "gosub" + number Or "return"
     ASSIGN_STMT.Rule = variable + "=" + EXPR
     LOCATE_STMT.Rule = "locate" + EXPR + comma + EXPR
     SWAP_STMT.Rule = "swap" + EXPR + comma + EXPR
-    COMMAND.Rule = Symbol("end") Or
-                   "cls"
+    COMMAND.Rule = Symbol("end") Or "cls"
     COMMENT_STMT.Rule = comment
 
     ' An expression is a number, or a variable, a string,
@@ -140,18 +141,18 @@ Public Class BasicGrammar
     BINARY_EXPR.Rule = EXPR + BINARY_OP + EXPR
 
     BINARY_OP.Rule = Symbol("+") Or
-                     "-" Or
-                     "*" Or
-                     "/" Or
-                     "\" Or
-                     "=" Or
-                     "<=" Or
-                     ">=" Or
-                     "<" Or
-                     ">" Or
-                     "<>" Or
-                     "and" Or
-                     "or"
+                      "-" Or
+                      "*" Or
+                      "/" Or
+                      "\" Or
+                      "=" Or
+                      "<=" Or
+                      ">=" Or
+                      "<" Or
+                      ">" Or
+                      "<>" Or
+                      "and" Or
+                      "or"
 
     'let's do operator precedence right here
     RegisterOperators(50, "*", "/", "\")
@@ -165,15 +166,11 @@ Public Class BasicGrammar
     ' PRINT "Hi"
     ' PRINT "Hi " a$
     ' All of these match "print" EXPR_LIST
-    EXPR_LIST.Rule = MakeStarRule(EXPR_LIST,
-                                  Nothing,
-                                  EXPR)
+    EXPR_LIST.Rule = MakeStarRule(EXPR_LIST, Nothing, EXPR)
 
     FOR_STMT.Rule = "for" + ASSIGN_STMT + "to" + EXPR + STEP_OPT
-    STEP_OPT.Rule = Empty Or
-                    "step" + number
-    NEXT_STMT.Rule = "next" Or
-                     "next" + variable
+    STEP_OPT.Rule = Empty Or "step" + number
+    NEXT_STMT.Rule = "next" Or "next" + variable
     WHILE_STMT.Rule = "while" + EXPR
     WEND_STMT.Rule = "wend"
 
@@ -209,19 +206,28 @@ Public Class BasicGrammar
                      "val" Or
                      "cint"
 
-    ARG_LIST.Rule = MakePlusRule(ARG_LIST,
-                                 comma,
-                                 EXPR)
+    ARG_LIST.Rule = MakePlusRule(ARG_LIST, comma, EXPR)
 
     GLOBAL_VAR_EXPR.Rule = Symbol("rnd") Or
                            "timer" Or
                            "inkey$" Or
                            "csrlin"
 
+    ' New syntax rules
+    DEF_FN_STMT.Rule = "def" + "fn" + variable + "(" + ARG_LIST + ")" + "=" + EXPR + "end" + "def" Or
+                       "def" + "fn" + variable + "(" + ARG_LIST + ")" + FN_BODY + "end" + "def"
+    DEF_SUB_STMT.Rule = "def" + "sub" + variable + "(" + ARG_LIST + ")" + FN_BODY + "end" + "def"
+    DEF_STRUCT_STMT.Rule = "def" + "struct" + variable + "(" + STRUCT_MEMBERS + ")"
+    DEF_ENUM_STMT.Rule = "def" + "enum" + variable + "{" + ENUM_VALUES + "}"
+
+    FN_BODY.Rule = MakePlusRule(FN_BODY, Nothing, STATEMENT_LIST)
+    ENUM_VALUES.Rule = MakePlusRule(ENUM_VALUES, Symbol(","), variable)
+    STRUCT_MEMBERS.Rule = MakePlusRule(STRUCT_MEMBERS, Symbol(","), variable)
+
     ' By registering these strings as "punctuation",
     ' we exclude them from appearing in as nodes in
     ' the compiled node tree.
-    RegisterPunctuation("(", ")", ",")
+    RegisterPunctuation("(", ")", ",", "{", "}")
 
 #End Region
 

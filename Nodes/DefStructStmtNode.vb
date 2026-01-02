@@ -33,12 +33,8 @@ Namespace Nodes
           textWriter.Write(context.IndentationText)
           textWriter.Write(context.IndentationText)
           textWriter.Write("this.")
-          ' Try to emit simple member name; fall back to generic generator.
-          If m.FindToken() IsNot Nothing Then
-            textWriter.Write(m.FindToken().Text)
-          Else
-            GeneratorHelper.GenerateNode(context, textWriter, m)
-          End If
+          ' Generate member name using GeneratorHelper
+          GeneratorHelper.GenerateNode(context, textWriter, m)
           textWriter.WriteLine(" = null;")
         Next
       End If

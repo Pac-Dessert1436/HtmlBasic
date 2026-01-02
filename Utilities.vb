@@ -1,4 +1,6 @@
-﻿Friend Module Utilities
+﻿Imports HtmlBasic.Nodes
+
+Friend Module Utilities
 
     ''' <summary>
     ''' An iterator to to a depth-first traversal of an Abstract-Syntax Tree.

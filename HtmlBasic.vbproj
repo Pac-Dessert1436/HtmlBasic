@@ -1,16 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType> 
+    <OutputType>Exe</OutputType>
     <!-- NOTE: Change output type to Library when this should be used as a library -->
     <RootNamespace>HtmlBasic</RootNamespace>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Reference Include="Irony">
-      <HintPath>Irony.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 
 </Project>

@@ -14,9 +14,9 @@ Namespace Nodes
 
     Public Overrides Sub GenerateJavaScript(context As JsContext, textWriter As IO.TextWriter)
       textWriter.Write("console.setCursorPos(")
-      GeneratorHelper.GenerateNode(context, textWriter, TargetRow)
+      GenerateNode(context, textWriter, TargetRow)
       textWriter.Write(", ")
-      GeneratorHelper.GenerateNode(context, textWriter, TargetColumn)
+      GenerateNode(context, textWriter, TargetColumn)
       textWriter.Write(");")
     End Sub
 

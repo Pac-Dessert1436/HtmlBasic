@@ -21,7 +21,7 @@ Namespace Nodes
       textWriter.Write(context.IndentationText)
       textWriter.Write("var ")
       If EnumName IsNot Nothing Then
-        GeneratorHelper.GenerateNode(context, textWriter, EnumName)
+        GenerateNode(context, textWriter, EnumName)
       Else
         textWriter.Write("AnonymousEnum")
       End If
@@ -31,7 +31,7 @@ Namespace Nodes
         For Each v As Irony.Compiler.AstNode In ValueList.ChildNodes
           If idx > 0 Then textWriter.Write(", ")
           ' Generate enum value name using GeneratorHelper
-          GeneratorHelper.GenerateNode(context, textWriter, v)
+          GenerateNode(context, textWriter, v)
           textWriter.Write(": " & idx.ToString())
           idx += 1
         Next

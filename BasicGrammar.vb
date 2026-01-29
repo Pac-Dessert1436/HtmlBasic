@@ -1,28 +1,28 @@
 ﻿Imports HtmlBasic.Nodes
-Imports Irony.Compiler
+Imports HtmlBasic.Irony.Compiler
 
 ''' <summary>
 ''' This class defines the Grammar for the BASIC language.
 ''' </summary>
 Public Class BasicGrammar
-    Inherits Grammar
+  Inherits Grammar
 
-    Public Sub New()
+  Public Sub New()
 
 #Region "Init"
 
-        ' BASIC is not case sensitive... 
-        CaseSensitive = False
+    ' BASIC is not case sensitive... 
+    CaseSensitive = False
 
-        ' By default, new-line characters are ignored. Because
-        ' BASIC uses line breaks to delimit lines, we need to
-        ' know where the line breaks are.  The following line
-        ' is required for this.
-        TokenFilters.Add(New CodeOutlineFilter(False))
+    ' By default, new-line characters are ignored. Because
+    ' BASIC uses line breaks to delimit lines, we need to
+    ' know where the line breaks are.  The following line
+    ' is required for this.
+    TokenFilters.Add(New CodeOutlineFilter(False))
 
-        ' Define the Terminals
-        Dim number = New NumberLiteral("NUMBER")
-        Dim variable = New VariableIdentifierTerminal
+    ' Define the Terminals
+    Dim number = New NumberLiteral("NUMBER")
+    Dim variable = New VariableIdentifierTerminal
     Dim stringLiteral = New StringLiteral("STRING", String.Empty)
     'Important: do not add comment term to
     'base.NonGrammarTerminals list - we do

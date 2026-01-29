@@ -1,4 +1,4 @@
-Imports Irony.Compiler
+Imports HtmlBasic.Irony.Compiler
 
 Namespace Nodes
 

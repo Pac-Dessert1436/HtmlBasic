@@ -1,5 +1,3 @@
-Imports System.IO
-
 Public Module Program
   Private Const BASIC_CODE = "
 10 DEF ENUM Elements{WOOD, FIRE, EARTH, METAL, WATER}
@@ -37,7 +35,7 @@ Public Module Program
       Console.WriteLine()
 
       ' Use the JavaScriptGenerator to parse and generate JavaScript
-      Dim result = JavaScriptGenerator.Generate(BASIC_CODE)
+      Dim result = Generate(BASIC_CODE)
 
       If result.IsSuccessful Then
         Console.WriteLine("Generated JavaScript:")

@@ -15,7 +15,7 @@ Namespace Nodes
 
     Public Sub New(args As Irony.Compiler.AstNodeArgs)
       MyBase.New(args)
-      
+
       ' Determine if this is a function or subroutine
       For Each node In args.ChildNodes
         If TypeOf node Is Irony.Compiler.Token Then
@@ -26,7 +26,7 @@ Namespace Nodes
           End If
         End If
       Next
-      
+
       ' Parse function/subroutine name and parameters
       For i As Integer = 0 To args.ChildNodes.Count - 1
         If TypeOf args.ChildNodes(i) Is Irony.Compiler.Token Then
@@ -36,7 +36,7 @@ Namespace Nodes
             If i + 1 < args.ChildNodes.Count Then
               FnName = args.ChildNodes(i + 1)
             End If
-            
+
             ' Find parameters (look for '(' and ')')
             For j As Integer = i + 2 To args.ChildNodes.Count - 1
               If TypeOf args.ChildNodes(j) Is Irony.Compiler.Token Then
@@ -47,7 +47,7 @@ Namespace Nodes
                 End If
               End If
             Next
-            
+
             ' Check for single-line function (with '=')
             For j As Integer = i + 2 To args.ChildNodes.Count - 1
               If TypeOf args.ChildNodes(j) Is Irony.Compiler.Token Then
@@ -58,19 +58,19 @@ Namespace Nodes
                 End If
               End If
             Next
-            
+
             ' If no '=', look for body (multi-line function)
             If ReturnExpr Is Nothing Then
               For j As Integer = i + 3 To args.ChildNodes.Count - 1
-                If Not (TypeOf args.ChildNodes(j) Is Irony.Compiler.Token AndAlso 
-                       (CType(args.ChildNodes(j), Irony.Compiler.Token).Text = "end" Or 
+                If Not (TypeOf args.ChildNodes(j) Is Irony.Compiler.Token AndAlso
+                       (CType(args.ChildNodes(j), Irony.Compiler.Token).Text = "end" Or
                         CType(args.ChildNodes(j), Irony.Compiler.Token).Text = "def")) Then
                   Body = args.ChildNodes(j)
                   Exit For
                 End If
               Next
             End If
-            
+
             Exit For
           End If
         End If
@@ -80,39 +80,39 @@ Namespace Nodes
     Public Overrides Sub GenerateJavaScript(context As JsContext, textWriter As IO.TextWriter)
       textWriter.Write(context.IndentationText)
       textWriter.Write("function ")
-      
+
       If FnName IsNot Nothing Then
-        GeneratorHelper.GenerateNode(context, textWriter, FnName)
+        GenerateNode(context, textWriter, FnName)
       Else
         textWriter.Write("AnonymousFn")
       End If
-      
+
       textWriter.Write("(")
-      
+
       If ParamList IsNot Nothing Then
         Dim first As Boolean = True
         For Each p As Irony.Compiler.AstNode In ParamList.ChildNodes
           If Not first Then textWriter.Write(", ")
           first = False
           ' Generate parameter name using GeneratorHelper
-          GeneratorHelper.GenerateNode(context, textWriter, p)
+          GenerateNode(context, textWriter, p)
         Next
       End If
-      
+
       textWriter.WriteLine(") {")
       context.Indentation += 1
-      
+
       If ReturnExpr IsNot Nothing Then
         ' Single-line function
         textWriter.Write(context.IndentationText)
         textWriter.Write("return ")
-        GeneratorHelper.GenerateNode(context, textWriter, ReturnExpr)
+        GenerateNode(context, textWriter, ReturnExpr)
         textWriter.WriteLine(";")
       ElseIf Body IsNot Nothing Then
         ' Multi-line function or subroutine
-        GeneratorHelper.GenerateNode(context, textWriter, Body)
+        GenerateNode(context, textWriter, Body)
       End If
-      
+
       context.Indentation -= 1
       textWriter.Write(context.IndentationText)
       textWriter.WriteLine("}")

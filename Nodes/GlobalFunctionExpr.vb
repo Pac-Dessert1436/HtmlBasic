@@ -63,7 +63,7 @@ Namespace Nodes
       For Each value In values
         If TypeOf value Is Irony.Compiler.AstNode Then
           textWriter.Write("(")
-          GeneratorHelper.GenerateNode(context, textWriter, CType(value, Irony.Compiler.AstNode))
+          GenerateNode(context, textWriter, CType(value, Irony.Compiler.AstNode))
           textWriter.Write(")")
         Else
           textWriter.Write(value)

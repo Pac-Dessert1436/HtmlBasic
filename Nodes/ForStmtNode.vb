@@ -26,7 +26,7 @@ Namespace Nodes
       m_assignment.GenerateJavaScript(context, textWriter)
       textWriter.Write(" ")
 
-      GeneratorHelper.GenerateNode(context, textWriter, m_assignment.Variable)
+      GenerateNode(context, textWriter, m_assignment.Variable)
 
       If m_step > 0 Then
         textWriter.Write("<=")
@@ -38,7 +38,7 @@ Namespace Nodes
 
       m_upperBound.GenerateJavaScript(context, textWriter)
       textWriter.Write("; ")
-      GeneratorHelper.GenerateNode(context, textWriter, m_assignment.Variable)
+      GenerateNode(context, textWriter, m_assignment.Variable)
       textWriter.Write(" += " & m_step)
 
       textWriter.Write(") {")

@@ -21,7 +21,7 @@ Namespace Nodes
       textWriter.Write(context.IndentationText)
       textWriter.Write("function ")
       If StructName IsNot Nothing Then
-        GeneratorHelper.GenerateNode(context, textWriter, StructName)
+        GenerateNode(context, textWriter, StructName)
       Else
         textWriter.Write("AnonymousStruct")
       End If
@@ -34,7 +34,7 @@ Namespace Nodes
           textWriter.Write(context.IndentationText)
           textWriter.Write("this.")
           ' Generate member name using GeneratorHelper
-          GeneratorHelper.GenerateNode(context, textWriter, m)
+          GenerateNode(context, textWriter, m)
           textWriter.WriteLine(" = null;")
         Next
       End If

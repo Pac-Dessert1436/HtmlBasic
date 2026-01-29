@@ -14,7 +14,7 @@ Namespace Nodes
     End Sub
 
     Public Overrides Sub GenerateJavaScript(context As JsContext, textWriter As IO.TextWriter)
-      GeneratorHelper.GenerateNode(context, textWriter, m_variable)
+      GenerateNode(context, textWriter, m_variable)
       textWriter.Write("= console.input(")
       m_toPrint?.GenerateJavaScript(context, textWriter)
       textWriter.Write(");")

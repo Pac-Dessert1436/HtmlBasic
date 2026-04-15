@@ -74,6 +74,26 @@ Public Class BasicGrammar
     Dim ENUM_VALUES = New NonTerminal("ENUM_VALUES", GetType(GenericJsBasicNode))
     Dim STRUCT_MEMBERS = New NonTerminal("STRUCT_MEMBERS", GetType(GenericJsBasicNode))
 
+    ' New AST nodes for extended language features
+    Dim SELECT_STMT = New NonTerminal("SELECT_STMT", GetType(SelectStmtNode))
+    Dim CASE_CLAUSE = New NonTerminal("CASE_CLAUSE", GetType(CaseClauseNode))
+    Dim ON_ERROR_STMT = New NonTerminal("ON_ERROR_STMT", GetType(OnErrorStmtNode))
+    Dim RESUME_STMT = New NonTerminal("RESUME_STMT", GetType(ResumeStmtNode))
+    Dim ARRAY_STMT = New NonTerminal("ARRAY_STMT", GetType(ArrayStmtNode))
+    Dim ARRAY_LITERAL = New NonTerminal("ARRAY_LITERAL", GetType(ArrayLiteralNode))
+    Dim ARRAY_METHOD = New NonTerminal("ARRAY_METHOD", GetType(ArrayMethodNode))
+    Dim FUNCTION_REF = New NonTerminal("FUNCTION_REF", GetType(FunctionRefNode))
+    Dim LAMBDA_EXPR = New NonTerminal("LAMBDA_EXPR", GetType(LambdaExprNode))
+    Dim FUNCTION_CALL = New NonTerminal("FUNCTION_CALL", GetType(FunctionCallNode))
+    Dim MEMBER_PROPERTY = New NonTerminal("MEMBER_PROPERTY", GetType(MemberPropertyNode))
+    Dim MEMBER_METHOD = New NonTerminal("MEMBER_METHOD", GetType(MemberMethodNode))
+    Dim HTML_ELEMENT_STMT = New NonTerminal("HTML_ELEMENT_STMT", GetType(HtmlElementStmtNode))
+    Dim LOCATE_ELEMENT_STMT = New NonTerminal("LOCATE_ELEMENT_STMT", GetType(LocateElementStmtNode))
+    Dim SET_PROPERTY_STMT = New NonTerminal("SET_PROPERTY_STMT", GetType(SetPropertyStmtNode))
+    Dim EVENT_HANDLER_STMT = New NonTerminal("EVENT_HANDLER_STMT", GetType(EventHandlerStmtNode))
+    Dim MSGBOX_STMT = New NonTerminal("MSGBOX_STMT", GetType(MsgBoxStmtNode))
+    Dim ERR_VARIABLE = New NonTerminal("ERR_VARIABLE", GetType(ErrVariableNode))
+
     ' Set the PROGRAM to be the root node of BASIC programs.
     ' A program is a bunch of lines
     Root = PROGRAM
@@ -114,7 +134,16 @@ Public Class BasicGrammar
                      DEF_FN_STMT Or
                      DEF_SUB_STMT Or
                      DEF_STRUCT_STMT Or
-                     DEF_ENUM_STMT
+                     DEF_ENUM_STMT Or
+                     SELECT_STMT Or
+                     ON_ERROR_STMT Or
+                     RESUME_STMT Or
+                     ARRAY_STMT Or
+                     HTML_ELEMENT_STMT Or
+                     LOCATE_ELEMENT_STMT Or
+                     SET_PROPERTY_STMT Or
+                     EVENT_HANDLER_STMT Or
+                     MSGBOX_STMT
 
     ' The different statements are defined here
     PRINT_STMT.Rule = "print" + EXPR_LIST
@@ -127,6 +156,22 @@ Public Class BasicGrammar
     SWAP_STMT.Rule = "swap" + EXPR + comma + EXPR
     COMMAND.Rule = Symbol("end") Or "cls"
     COMMENT_STMT.Rule = comment
+    
+    ' New statement rules for extended language features
+    SELECT_STMT.Rule = "select" + EXPR + MakePlusRule(SELECT_STMT, Nothing, CASE_CLAUSE) + "end" + "select"
+    CASE_CLAUSE.Rule = "case" + EXPR + ":" + STATEMENT_LIST
+    ON_ERROR_STMT.Rule = "on" + "error" + "goto" + number Or "on" + "error" + "resume" + "next"
+    RESUME_STMT.Rule = "resume" + "next"
+    ARRAY_STMT.Rule = "dim" + variable + "(" + ARG_LIST + ")" Or 
+                     "dim" + variable + "=" + ARRAY_LITERAL Or
+                     "redim" + variable + "(" + ARG_LIST + ")" Or
+                     "erase" + variable
+    ARRAY_LITERAL.Rule = "{" + ARG_LIST + "}"
+    HTML_ELEMENT_STMT.Rule = "set" + variable + "=" + "new" + variable
+    LOCATE_ELEMENT_STMT.Rule = variable + "." + "locate" + EXPR + comma + EXPR
+    SET_PROPERTY_STMT.Rule = variable + "." + "set_" + variable + EXPR
+    EVENT_HANDLER_STMT.Rule = variable + "." + "on_" + variable + "sub" + "(" + ")" + STATEMENT_LIST + "end" + "sub"
+    MSGBOX_STMT.Rule = "msgbox" + EXPR
 
     ' An expression is a number, or a variable, a string,
     ' or the result of a binary comparison.
@@ -136,7 +181,23 @@ Public Class BasicGrammar
                 BINARY_EXPR Or
                 GLOBAL_VAR_EXPR Or
                 GLOBAL_FUNCTION_EXPR Or
+                FUNCTION_REF Or
+                LAMBDA_EXPR Or
+                ARRAY_METHOD Or
+                ERR_VARIABLE Or
                 "(" + EXPR + ")"
+
+    ' Function reference with @ suffix
+    FUNCTION_REF.Rule = variable + "@"
+    
+    ' Lambda expression: FN(x) x * 2
+    LAMBDA_EXPR.Rule = "fn" + "(" + ARG_LIST + ")" + EXPR
+    
+    ' Array method calls: arr.insert(index, value), arr.append(value), etc.
+    ARRAY_METHOD.Rule = variable + "." + variable + "(" + ARG_LIST + ")"
+    
+    ' ERR variable for error handling
+    ERR_VARIABLE.Rule = "err"
 
     BINARY_EXPR.Rule = EXPR + BINARY_OP + EXPR
 
@@ -217,12 +278,18 @@ Public Class BasicGrammar
     DEF_FN_STMT.Rule = "def" + "fn" + variable + "(" + ARG_LIST + ")" + "=" + EXPR + "end" + "def" Or
                        "def" + "fn" + variable + "(" + ARG_LIST + ")" + FN_BODY + "end" + "def"
     DEF_SUB_STMT.Rule = "def" + "sub" + variable + "(" + ARG_LIST + ")" + FN_BODY + "end" + "def"
-    DEF_STRUCT_STMT.Rule = "def" + "struct" + variable + "(" + STRUCT_MEMBERS + ")"
+    DEF_STRUCT_STMT.Rule = "def" + "struct" + variable + "(" + STRUCT_MEMBERS + ")" + MakeStarRule(DEF_STRUCT_STMT, Nothing, MEMBER_PROPERTY) + MakeStarRule(DEF_STRUCT_STMT, Nothing, MEMBER_METHOD) + "end" + "struct"
     DEF_ENUM_STMT.Rule = "def" + "enum" + variable + "{" + ENUM_VALUES + "}"
 
     FN_BODY.Rule = MakePlusRule(FN_BODY, Nothing, STATEMENT_LIST)
     ENUM_VALUES.Rule = MakePlusRule(ENUM_VALUES, Symbol(","), variable)
     STRUCT_MEMBERS.Rule = MakePlusRule(STRUCT_MEMBERS, Symbol(","), variable)
+    
+    ' Member property and method definitions for structs
+    MEMBER_PROPERTY.Rule = "m_let" + variable + "." + variable + "=" + EXPR Or 
+                          "key" + variable + "." + variable + "=" + EXPR
+    MEMBER_METHOD.Rule = "m_fn" + variable + "." + variable + "(" + ARG_LIST + ")" + "=" + EXPR Or
+                        "m_sub" + variable + "." + variable + "(" + ARG_LIST + ")" + FN_BODY + "end" + "sub"
 
     ' By registering these strings as "punctuation",
     ' we exclude them from appearing in as nodes in

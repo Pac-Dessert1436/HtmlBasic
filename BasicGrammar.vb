@@ -1,5 +1,5 @@
 ﻿Imports HtmlBasic.Nodes
-Imports HtmlBasic.Irony.Compiler
+Imports Irony.Compiler
 
 ''' <summary>
 ''' This class defines the Grammar for the BASIC language.
@@ -23,7 +23,7 @@ Public Class BasicGrammar
     ' Define the Terminals
     Dim number = New NumberLiteral("NUMBER")
     Dim variable = New VariableIdentifierTerminal
-    Dim stringLiteral = New StringLiteral("STRING", String.Empty)
+    Dim stringLiteral = New StringLiteral("STRING", """", ScanFlags.AllowAllEscapes)
     'Important: do not add comment term to
     'base.NonGrammarTerminals list - we do
     'our own comment handling in CodeOutlineFilter

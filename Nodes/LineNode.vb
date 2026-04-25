@@ -1,5 +1,3 @@
-Imports HtmlBasic.Irony.Compiler
-
 Namespace Nodes
 
   Friend Class LineNode
@@ -15,7 +13,7 @@ Namespace Nodes
       MyBase.New(args)
       LineTypes = LineTypes.InternalLine ' overwritten later by JavaScriptGenerator
       Dim index = 0
-      Dim tkn = TryCast(args.ChildNodes(index), Token)
+      Dim tkn = TryCast(args.ChildNodes(index), Irony.Compiler.Token)
       If tkn IsNot Nothing AndAlso IsNumeric(tkn.Value) Then
         LineNumber = CInt(CLng(Fix(tkn.Value)) Mod Integer.MaxValue)
         index += 1

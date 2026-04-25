@@ -1,5 +1,7 @@
 # `HtmlBasic` - BASIC-to-HTML Transpiler Tailored for Web Development
 
+> **Note:** This project is still in the alpha stage of development, see [Current Status of the Project](#current-status-of-the-project) for more details.
+
 ## Description
 `HtmlBasic` is a transpiler that converts BASIC code into HTML, focusing on web development. Inspired by @DualBrain's [JsBasic](https://github.com/DualBrain/JsBasic) project, it is designed to be easy to create HTML webpages with embedded JavaScript. The transpiler is written in VB.NET and uses the Irony library for parsing BASIC code, but from my perspective, the BASIC language itself needs to be overhauled to support web development. *__The overhauled version of the language is still based on GW-BASIC, and will be renamed HTML-BASIC.__*
 
@@ -8,15 +10,38 @@ HTML-BASIC is designed to lower the barrier for two key groups: **beginner devel
 While JavaScript is a great language for web development, and BASIC shines for its beginner-friendliness on personal computers, HTML-BASIC merges these strengths using BASIC's intuitive syntax. The expected workflow is intentionally straightforward: write HTML-BASIC code in a `.bas` file, run the transpiler to generate a self-contained HTML file (with embedded transpiled JavaScript), and open the HTML file directly in any modern web browser. No additional build tools or dependencies required.
 
 ## Current Status of the Project
-**HTML-BASIC is currently in the alpha stage of development, with new features actively being implemented. However, the codebase has unresolved issues that prevent the transpiler from being fully operational. It is anticipated that resolving these challenges and stabilizing the codebase will take approximately one month or more.**
+**⚠️ Work in Progress - Not Production-Ready**: This project is currently in active development and should be considered experimental. The core transpiler functionality is being built and tested, but it is not yet ready for production use.
 
-A key design adjustment is now being finalized for keyword usage, aiming to align the language with modern programming conventions while avoiding the introduction of new keywords. Specifically:  
-- The `RETURN` keyword, which in traditional GW-BASIC was exclusively paired with `GOSUB` for subroutine returns, will be repurposed to handle return values for functions defined via `DEF FN` or subroutines via `DEF SUB`.  
-- To maintain consistency with this new usage of `RETURN` and uphold modern coding practices:  
-  1. The `GOSUB` keyword is prohibited within the body of any `DEF FN`/`DEF SUB` block;  
-  2. The `GOTO` keyword must not be used to jump from inside a function/subroutine body to external code, nor shall global-level `GOTO` statements incorrectly branch into the scope of a function/subroutine.
+### Recent Changes
+- **Switched to Original Irony.dll**: _After encountering issues with the extracted Irony codebase, the project has been reverted to using the original, stable Irony.dll library._ This resolves the conversion errors and parsing issues that were previously blocking development.
+- **Basic Parsing Working**: The transpiler can now successfully parse simple BASIC programs without the previous string conversion errors.
+- **Grammar Development**: The BASIC grammar definition is being refined to properly handle HTML-BASIC's extended syntax features.
 
-This adjustment preserves backward compatibility with core BASIC syntax while refining control flow semantics to match contemporary programming expectations, eliminating the need for additional keywords and reducing syntactic ambiguity.
+### Current Capabilities
+✅ **Working Features:**
+- Line number and expression parsing
+- AST nodes from the original `JsBasic` project
+- Rudimentary JavaScript code generation
+
+🔄 **In Development:**
+- HTML element integration
+- Event handler, attribute binding and lambda expressions
+- Extended language features (structs, enums, functions)
+- Complete grammar coverage
+- Full JavaScript code generation
+
+### Next Steps
+1. Complete the HTML-BASIC grammar implementation
+2. Create comprehensive test suite
+3. Develop documentation and examples
+
+### Known Limitations
+- The transpiler currently only handles very simple BASIC programs
+- HTML integration features are not yet implemented
+- Error handling and reporting need improvement
+- Performance optimization is pending
+
+**Note**: This project is ideal for contributors interested in language design, transpiler development, or BASIC/web development integration. Feedback and contributions are welcome!
 
 ## Differentiation from `JsBasic`
 While inspired by JsBasic, a BASIC-to-JavaScript transpiler, HTML-BASIC might stand out in three core ways:
